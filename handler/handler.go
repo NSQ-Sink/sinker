@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/nyelonong/nsqsink/message"
+	"github.com/nsqsink/sink/message"
 )
 
 type Handler interface {

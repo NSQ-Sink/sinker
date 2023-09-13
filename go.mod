@@ -1,4 +1,4 @@
-module github.com/nyelonong/nsqsink
+module github.com/nsqsink/sink
 
 go 1.20
 

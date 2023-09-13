@@ -19,6 +19,6 @@ type ConsumerModule struct {
 	source string
 }
 
-func NewConsumer() Consumer {
+// func NewConsumer() Consumer {
 
-}
+// }

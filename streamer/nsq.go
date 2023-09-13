@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/nsqio/go-nsq"
-	"github.com/nyelonong/nsqsink/handler"
-	"github.com/nyelonong/nsqsink/message"
+	"github.com/nsqsink/sink/handler"
+	"github.com/nsqsink/sink/message"
 )
 
 // NSQModule struct

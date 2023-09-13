@@ -3,7 +3,7 @@ package streamer
 import (
 	"context"
 
-	"github.com/nyelonong/nsqsink/handler"
+	"github.com/nsqsink/sink/handler"
 )
 
 // Streamer is an interface which can be implemented

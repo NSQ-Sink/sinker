@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nyelonong/nsqsink/sink"
+	"github.com/nsqsink/sink/sink"
 )
 
 type Client struct {
