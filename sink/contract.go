@@ -14,9 +14,9 @@ package sink
 			"a": "b",
 			"c": "d",
 		},
-		"body": {
+	},
+	"body": {
 
-		}
 	},
 	"max_attempts": 10,
 }
