@@ -30,13 +30,14 @@ func main() {
 	// parse configuration from flags
 	// file configuration
 	flag.StringVar(&configFilePath, "config-path", "", "Define config file path if you want to read config from files instead of flag")
-
 	flag.StringVar(&cfg.LogLevel, "log-level", "", "Define log level")
 
 	// single consumer config
 	flag.StringVar(&consumerCfg.ID, "id", "", "Define consumer id")
 	flag.StringVar(&consumerCfg.Topic, "topic", "", "Define the topic name")
-	flag.StringVar(&consumerCfg.Source, "source", "", "Define the source of the topic")
+	flag.StringVar(&consumerCfg.Source, "source", "", "Define the source message queue address of the topic (general source)")
+	flag.StringVar(&consumerCfg.SourceNSQD, "source_nsqd", "", "Define the source nsqd of the topic")
+	flag.StringVar(&consumerCfg.SourceNSQLookupd, "source_nsqlookupd", "", "Define the source nsqd of the topic")
 	flag.IntVar(&consumerCfg.Concurrent, "concurrent", 1, "Define the number of concurrent for the consumer")
 	flag.IntVar(&consumerCfg.MaxAttempt, "max-attempt", 5, "Define the number of max attempt for the consumer to process the message")
 	flag.IntVar(&consumerCfg.MaxInFlight, "max-in-flight", 5, "Define the number of max in flight for the consumer to process the message")

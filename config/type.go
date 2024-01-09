@@ -7,20 +7,23 @@ type (
 	}
 
 	Consumer struct {
-		ID          string `json:"id"`     // will be channel name
-		Topic       string `json:"topic"`  // source topic
-		Source      string `json:"source"` // list source lookupd, separated by comma for multiple value
-		MaxAttempt  int    `json:"max_attempt"`
-		MaxInFlight int    `json:"max_in_flight"`
-		Concurrent  int    `json:"concurrent"`
-		Sinker      Sinker `json:"sinker"`
-		Active      bool   `json:"active"`
+		ID               string `json:"id"`                // will be channel name
+		Topic            string `json:"topic"`             // source topic
+		Source           string `json:"source"`            // general source, separated by comma for multiple value
+		SourceNSQD       string `json:"source_nsqd"`       // list source nsqd, separated by comma for multiple value
+		SourceNSQLookupd string `json:"source_nsqlookupd"` // list source nsqd, separated by comma for multiple value
+		MaxAttempt       int    `json:"max_attempt"`
+		MaxInFlight      int    `json:"max_in_flight"`
+		Concurrent       int    `json:"concurrent"`
+		Sinker           Sinker `json:"sinker"`
+		Active           bool   `json:"active"`
 	}
 
 	Sinker struct {
 		Type   string     `json:"type"` //sinker type
 		Parser Parser     `json:"parser"`
 		HTTP   HTTPSinker `json:"http"`
+		File   FileSinker `json:"file"`
 	}
 
 	Parser struct {
@@ -32,5 +35,9 @@ type (
 		URL     string            `json:"url"`
 		Method  string            `json:"method"`
 		Headers map[string]string `json:"headers"`
+	}
+
+	FileSinker struct {
+		FileName string `json:"file_name"`
 	}
 )

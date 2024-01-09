@@ -3,16 +3,19 @@ package nsq
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/nsqio/go-nsq"
+	"github.com/nsqsink/sink/config"
 	"github.com/nsqsink/sink/contract"
 	message "github.com/nsqsink/sink/message/nsq"
 )
 
 type Module struct {
-	nsqConsumer *nsq.Consumer
-	source      []string
+	nsqConsumer      *nsq.Consumer
+	sourceNSQD       []string
+	sourceNSQLookupd []string
 }
 
 // New return consumer module / object
@@ -72,18 +75,49 @@ func New(ctx context.Context, e contract.Event, h contract.Handler, cfg Config) 
 		c.AddHandler(nsq.HandlerFunc(handlerFn))
 	}
 
+	// parse source
+	var (
+		sourceNSQD       []string
+		sourceNSQLookupd []string
+	)
+
+	for _, source := range e.GetSource() {
+		if strings.Contains(source, config.ConstPrefixSourceNSQD) {
+			sourceNSQD = append(sourceNSQD, strings.TrimLeft(source, config.ConstPrefixSourceNSQD))
+			continue
+		}
+
+		if strings.Contains(source, config.ConstPrefixSourceNSQLookupd) {
+			sourceNSQD = append(sourceNSQLookupd, strings.TrimLeft(source, config.ConstPrefixSourceNSQLookupd))
+			continue
+		}
+	}
+
 	// return consumer
 	return Module{
-		nsqConsumer: c,
-		source:      e.GetSource(),
+		nsqConsumer:      c,
+		sourceNSQD:       sourceNSQD,
+		sourceNSQLookupd: sourceNSQLookupd,
 	}, nil
 }
 
 // Run is a method to run / start the consumer to listen from an event
 func (m Module) Run() error {
+	if len(m.sourceNSQLookupd) == 0 && len(m.sourceNSQD) == 0 {
+		return errors.New("empty source")
+	}
+
 	// run the consumer by connecting to nsqlookupd
-	if err := m.nsqConsumer.ConnectToNSQDs(m.source); err != nil {
-		return err
+	if len(m.sourceNSQLookupd) > 0 {
+		if err := m.nsqConsumer.ConnectToNSQLookupds(m.sourceNSQLookupd); err != nil {
+			return err
+		}
+	}
+
+	if len(m.sourceNSQD) > 0 {
+		if err := m.nsqConsumer.ConnectToNSQDs(m.sourceNSQD); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -91,6 +125,10 @@ func (m Module) Run() error {
 
 // Stop is a method to stop and close the consumer from listening an event
 func (m Module) Stop() error {
+	if m.nsqConsumer == nil {
+		return errors.New("empty consumer")
+	}
+
 	m.nsqConsumer.Stop()
 	return nil
 }

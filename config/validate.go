@@ -16,7 +16,7 @@ func (c App) Validate() (bool, error) {
 		}
 
 		// checking source
-		if cfg.Source == "" {
+		if cfg.Source == "" && cfg.SourceNSQD == "" && cfg.SourceNSQLookupd == "" {
 			return false, errors.New("source is empty")
 		}
 
@@ -71,5 +71,21 @@ func (c App) Validate() (bool, error) {
 
 // ParseSource parse source to array of string by comma
 func (c Consumer) ParseSource() []string {
-	return strings.Split(c.Source, ",")
+	tempSource := strings.Split(c.Source, ",")
+
+	tempSourceNSQD := strings.Split(c.SourceNSQD, ",")
+	for _, nsqdAddr := range tempSourceNSQD {
+		if nsqdAddr != "" {
+			tempSource = append(tempSource, ConstPrefixSourceNSQD+nsqdAddr)
+		}
+	}
+
+	tempSourceNSQLookupd := strings.Split(c.SourceNSQLookupd, ",")
+	for _, nsqdAddr := range tempSourceNSQLookupd {
+		if nsqdAddr != "" {
+			tempSource = append(tempSource, ConstPrefixSourceNSQLookupd+nsqdAddr)
+		}
+	}
+
+	return tempSource
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/nsqsink/sink/config"
 	"github.com/nsqsink/sink/contract"
 	jsonParser "github.com/nsqsink/sink/parser/json"
+	"github.com/nsqsink/sink/sink/file"
 	"github.com/nsqsink/sink/sink/http"
 )
 
@@ -31,6 +32,8 @@ func New(cfgSink config.Sinker) (contract.Handler, error) {
 	case "http":
 		httpMethod := strings.ToUpper(cfgSink.HTTP.Method)
 		sinker, errSinker = http.NewSink(cfgSink.HTTP.URL, httpMethod)
+	case "file":
+		sinker, errSinker = file.NewSink(cfgSink.File.FileName)
 	default:
 		errSinker = fmt.Errorf("sinker type %s not supported yet", cfgSink.Type)
 	}
