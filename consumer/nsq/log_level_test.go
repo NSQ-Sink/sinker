@@ -1,47 +1,48 @@
-package consumer
+package nsq
 
 import (
 	"reflect"
 	"testing"
 
 	"github.com/nsqio/go-nsq"
+	"github.com/nsqsink/sink/log"
 )
 
-func TestLogLevel_ToNSQLogLevel(t *testing.T) {
+func TestLogLevel_toNSQLogLevel(t *testing.T) {
 	tests := []struct {
 		name string
-		l    LogLevel
+		l    log.LogLevel
 		want nsq.LogLevel
 	}{
 		{
 			name: "test debug",
-			l:    LogLevel("debug"),
+			l:    log.LogLevel("debug"),
 			want: nsq.LogLevelDebug,
 		},
 		{
 			name: "test info",
-			l:    LogLevel("info"),
+			l:    log.LogLevel("info"),
 			want: nsq.LogLevelInfo,
 		},
 		{
 			name: "test warn",
-			l:    LogLevel("warn"),
+			l:    log.LogLevel("warn"),
 			want: nsq.LogLevelWarning,
 		},
 		{
 			name: "test error",
-			l:    LogLevel("error"),
+			l:    log.LogLevel("error"),
 			want: nsq.LogLevelError,
 		},
 		{
 			name: "test others",
-			l:    LogLevel("others"),
+			l:    log.LogLevel("others"),
 			want: nsq.LogLevelMax,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.l.ToNSQLogLevel(); !reflect.DeepEqual(got, tt.want) {
+			if got := toNSQLogLevel(tt.l); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LogLevel.ToNSQLogLevel() = %v, want %v", got, tt.want)
 			}
 		})

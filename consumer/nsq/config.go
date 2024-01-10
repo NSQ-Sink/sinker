@@ -1,4 +1,6 @@
-package consumer
+package nsq
+
+import "github.com/nsqsink/sink/log"
 
 // Config config for consumer
 type Config struct {
@@ -6,10 +8,5 @@ type Config struct {
 	Concurrent  int    // number of concurrent consumer
 	MaxAttempt  int    // max attempt of consumer to handle a message
 	MaxInFlight int
-	LogLevel    LogLevel // setting for log level (1 - )
+	LogLevel    log.LogLevel // setting for log level (1 - )
 }
-
-const (
-	constDefaultMaxAttempt  int = 3
-	constDefaultMaxInflight int = 10
-)
