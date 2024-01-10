@@ -129,6 +129,11 @@ func (m Module) Stop() error {
 		return errors.New("empty consumer")
 	}
 
+	// stop the consumer
 	m.nsqConsumer.Stop()
+
+	// wait until stopped (block)
+	<-m.nsqConsumer.StopChan
+
 	return nil
 }

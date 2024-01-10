@@ -107,14 +107,12 @@ func main() {
 		}
 	}
 
-	// run using socketmaster
+	// run
 	idleConnsClosed := make(chan struct{})
 	go func() {
 		signals := make(chan os.Signal, 1)
 
-		// When using socketmaster, it send SIGTERM after spawning new process,
-		// as it mentioned on the doc https://github.com/tokopedia/socketmaster#how-it-works
-		// SIGHUP is for handling upstart reload
+		// listen from signal for interrupt
 		signal.Notify(signals, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 		sign := <-signals
 
