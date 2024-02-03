@@ -26,9 +26,11 @@ import (
 func main() {
 	// init configuration variables
 	var (
-		cfg            config.App
-		consumerCfg    config.Consumer
-		configFilePath string
+		cfg              config.App
+		consumerCfg      config.Consumer
+		sourceNSQD       string
+		sourceNSQLookupd string
+		configFilePath   string
 	)
 
 	// parse configuration from flags
@@ -40,9 +42,9 @@ func main() {
 	// single consumer config
 	flag.StringVar(&consumerCfg.ID, "id", "", "Define consumer id")
 	flag.StringVar(&consumerCfg.Topic, "topic", "", "Define the topic name")
-	flag.StringVar(&consumerCfg.Source, "source", "", "Define the source message queue address of the topic (general source)")
-	flag.StringVar(&consumerCfg.SourceNSQD, "source_nsqd", "", "Define the source nsqd of the topic")
-	flag.StringVar(&consumerCfg.SourceNSQLookupd, "source_nsqlookupd", "", "Define the source nsqd of the topic")
+	// flag.StringVar(&consumerCfg.Source, "source", "", "Define the source message queue address of the topic (general source)")
+	flag.StringVar(&sourceNSQD, "source_nsqd", "", "Define the source nsqd of the topic, separated by comma")
+	flag.StringVar(&sourceNSQLookupd, "source_nsqlookupd", "", "Define the source nsqd of the topic, separated by comma")
 	flag.IntVar(&consumerCfg.Concurrent, "concurrent", 1, "Define the number of concurrent for the consumer")
 	flag.IntVar(&consumerCfg.MaxAttempt, "max-attempt", 5, "Define the number of max attempt for the consumer to process the message")
 	flag.IntVar(&consumerCfg.MaxInFlight, "max-in-flight", 5, "Define the number of max in flight for the consumer to process the message")
@@ -55,6 +57,7 @@ func main() {
 
 	// load config from files
 	if configFilePath == "" {
+		consumerCfg.ParseSource(sourceNSQD, sourceNSQLookupd)
 		cfg.Consumers = append(cfg.Consumers, consumerCfg)
 	} else {
 		jsonFile, err := os.Open(configFilePath)
@@ -111,7 +114,7 @@ func main() {
 		ctx := context.Background()
 
 		// create event
-		e := event.New(cfgConsumer.Topic, cfgConsumer.ParseSource())
+		e := event.New(cfgConsumer.Topic, cfgConsumer.Source.NSQD, cfgConsumer.Source.NSQLookupd)
 
 		// create handler (still dummy)
 		h, err := handler.New(cfgConsumer.Sinker)
