@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nsqio/go-nsq"
-	"github.com/nsqsink/sink/config"
 	"github.com/nsqsink/sink/contract"
+	event "github.com/nsqsink/sink/event/nsq"
 	message "github.com/nsqsink/sink/message/nsq"
 )
 
@@ -51,11 +51,13 @@ func New(ctx context.Context, e contract.Event, h contract.Handler, cfg Config) 
 		cfg.ChannelName = e.GetTopic() + "-" + uuid.NewString()
 	}
 
+	// create nsq config object
+	nsqCfg := nsq.NewConfig()
+	nsqCfg.MaxAttempts = uint16(cfg.MaxAttempt)
+	nsqCfg.MaxInFlight = cfg.MaxInFlight
+
 	// create new consumer
-	c, err := nsq.NewConsumer(e.GetTopic(), cfg.ChannelName, &nsq.Config{
-		MaxAttempts: uint16(cfg.MaxAttempt),
-		MaxInFlight: cfg.MaxInFlight,
-	})
+	c, err := nsq.NewConsumer(e.GetTopic(), cfg.ChannelName, nsqCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +84,13 @@ func New(ctx context.Context, e contract.Event, h contract.Handler, cfg Config) 
 	)
 
 	for _, source := range e.GetSource() {
-		if strings.Contains(source, config.ConstPrefixSourceNSQD) {
-			sourceNSQD = append(sourceNSQD, strings.TrimLeft(source, config.ConstPrefixSourceNSQD))
+		if strings.Contains(source, event.ConstPrefixSourceNSQD) {
+			sourceNSQD = append(sourceNSQD, strings.TrimLeft(source, event.ConstPrefixSourceNSQD))
 			continue
 		}
 
-		if strings.Contains(source, config.ConstPrefixSourceNSQLookupd) {
-			sourceNSQD = append(sourceNSQLookupd, strings.TrimLeft(source, config.ConstPrefixSourceNSQLookupd))
+		if strings.Contains(source, event.ConstPrefixSourceNSQLookupd) {
+			sourceNSQLookupd = append(sourceNSQLookupd, strings.TrimLeft(source, event.ConstPrefixSourceNSQLookupd))
 			continue
 		}
 	}
@@ -110,13 +112,13 @@ func (m Module) Run() error {
 	// run the consumer by connecting to nsqlookupd
 	if len(m.sourceNSQLookupd) > 0 {
 		if err := m.nsqConsumer.ConnectToNSQLookupds(m.sourceNSQLookupd); err != nil {
-			return err
+			return errors.New("connect to nsqdlookupds: " + err.Error() + ", address: " + strings.Join(m.sourceNSQLookupd, ","))
 		}
 	}
 
 	if len(m.sourceNSQD) > 0 {
 		if err := m.nsqConsumer.ConnectToNSQDs(m.sourceNSQD); err != nil {
-			return err
+			return errors.New("connect to nsqds: " + err.Error() + ", address: " + strings.Join(m.sourceNSQD, ","))
 		}
 	}
 

@@ -9,8 +9,8 @@ import (
 	"github.com/nsqsink/sink/config"
 	"github.com/nsqsink/sink/contract"
 	jsonParser "github.com/nsqsink/sink/parser/json"
-	"github.com/nsqsink/sink/sink/file"
-	"github.com/nsqsink/sink/sink/http"
+	"github.com/nsqsink/sink/sinker/file"
+	"github.com/nsqsink/sink/sinker/http"
 )
 
 // @TODO: still on progress
@@ -30,10 +30,10 @@ func New(cfgSink config.Sinker) (contract.Handler, error) {
 	// init sinker
 	switch strings.ToLower(cfgSink.Type) {
 	case "http":
-		httpMethod := strings.ToUpper(cfgSink.HTTP.Method)
-		sinker, errSinker = http.NewSink(cfgSink.HTTP.URL, httpMethod)
+		httpMethod := strings.ToUpper(cfgSink.Config.HTTP.Method)
+		sinker, errSinker = http.NewSink(cfgSink.Config.HTTP.URL, httpMethod)
 	case "file":
-		sinker, errSinker = file.NewSink(cfgSink.File.FileName)
+		sinker, errSinker = file.NewSink(cfgSink.Config.File.FileName)
 	default:
 		errSinker = fmt.Errorf("sinker type %s not supported yet", cfgSink.Type)
 	}
@@ -43,7 +43,6 @@ func New(cfgSink config.Sinker) (contract.Handler, error) {
 
 	// init parser
 	switch strings.ToLower(cfgSink.Parser.Type) {
-	case "json":
 	default:
 		parser, errParser = jsonParser.New(cfgSink.Parser)
 	}
@@ -71,6 +70,8 @@ func (m Module) Handle(msg contract.Messager) error {
 		log.Println(err)
 		return err
 	}
+
+	log.Println("parsed : " + string(parsed))
 
 	// send to sinker
 	_, err = m.sinker.Write(ctx, parsed)
