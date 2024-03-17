@@ -2,8 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
-	"strings"
 )
 
 // Validate validate configuration, return false if config is not valid
@@ -16,15 +14,8 @@ func (c App) Validate() (bool, error) {
 		}
 
 		// checking source
-		if cfg.Source == "" && cfg.SourceNSQD == "" && cfg.SourceNSQLookupd == "" {
+		if len(cfg.Source.NSQD) == 0 && len(cfg.Source.NSQLookupd) == 0 {
 			return false, errors.New("source is empty")
-		}
-
-		listSource := cfg.ParseSource()
-		for _, source := range listSource {
-			if source == "" {
-				return false, fmt.Errorf("not valid source %s", source)
-			}
 		}
 
 		// checking max attempt
@@ -67,25 +58,4 @@ func (c App) Validate() (bool, error) {
 
 	// return if everything is okay
 	return true, nil
-}
-
-// ParseSource parse source to array of string by comma
-func (c Consumer) ParseSource() []string {
-	tempSource := strings.Split(c.Source, ",")
-
-	tempSourceNSQD := strings.Split(c.SourceNSQD, ",")
-	for _, nsqdAddr := range tempSourceNSQD {
-		if nsqdAddr != "" {
-			tempSource = append(tempSource, ConstPrefixSourceNSQD+nsqdAddr)
-		}
-	}
-
-	tempSourceNSQLookupd := strings.Split(c.SourceNSQLookupd, ",")
-	for _, nsqdAddr := range tempSourceNSQLookupd {
-		if nsqdAddr != "" {
-			tempSource = append(tempSource, ConstPrefixSourceNSQLookupd+nsqdAddr)
-		}
-	}
-
-	return tempSource
 }

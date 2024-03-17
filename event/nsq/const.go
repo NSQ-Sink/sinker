@@ -1,4 +1,4 @@
-package config
+package nsq
 
 // nsq config
 const (
