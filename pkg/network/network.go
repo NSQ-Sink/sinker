@@ -15,7 +15,7 @@ func GetValidURL(addr string) (string, error) {
 		}
 
 		if net.ParseIP(host) == nil {
-			return "", errors.ErrUnsupported
+			return "", errors.New("address is invalid")
 		}
 
 		return "http://" + host + ":" + port, nil
