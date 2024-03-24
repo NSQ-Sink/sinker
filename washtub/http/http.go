@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/nsqsink/sink/entities"
+	"github.com/nsqsink/sink/entity"
 	"github.com/nsqsink/sink/washtub"
 )
 
@@ -44,7 +44,7 @@ func NewWashtuber(ctx context.Context, address string) (washtub.Washtuber, error
 	}, nil
 }
 
-func (c *Client) Pulse(ctx context.Context, data entities.PulseRequest) chan error {
+func (c *Client) Pulse(ctx context.Context, data entity.PulseRequest) chan error {
 	var (
 		errCh  = make(chan error, 2)
 		ticker = time.NewTicker(c.pulseInterval)
@@ -74,8 +74,8 @@ func (c *Client) Pulse(ctx context.Context, data entities.PulseRequest) chan err
 	return errCh
 }
 
-func (c *Client) Message(ctx context.Context, data entities.MessageRequest) (*entities.MessageResponse, error) {
-	return &entities.MessageResponse{}, nil
+func (c *Client) Message(ctx context.Context, data entity.MessageRequest) (*entity.MessageResponse, error) {
+	return &entity.MessageResponse{}, nil
 }
 
 func (c *Client) call(ctx context.Context, body interface{}) error {
@@ -85,8 +85,7 @@ func (c *Client) call(ctx context.Context, body interface{}) error {
 	}
 
 	bodyReader := bytes.NewReader(b)
-
-	req, err := http.NewRequest(http.MethodPost, c.address, bodyReader)
+	req, err := http.NewRequest(http.MethodPost, c.address+"/worker/pulse", bodyReader)
 	if err != nil {
 		return err
 	}
@@ -105,7 +104,7 @@ func (c *Client) call(ctx context.Context, body interface{}) error {
 		return err
 	}
 
-	var pr entities.PulseResponse
+	var pr entity.PulseResponse
 	if err := json.Unmarshal(response, &pr); err != nil {
 		return err
 	}
