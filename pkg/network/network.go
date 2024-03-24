@@ -3,7 +3,26 @@ package network
 import (
 	"errors"
 	"net"
+	"net/url"
 )
+
+func GetValidURL(addr string) (string, error) {
+	u, err := url.Parse(addr)
+	if err != nil {
+		host, port, err := net.SplitHostPort(addr)
+		if err != nil {
+			return "", err
+		}
+
+		if net.ParseIP(host) == nil {
+			return "", errors.ErrUnsupported
+		}
+
+		return "http://" + host + ":" + port, nil
+	}
+	u.Scheme = "http"
+	return u.String(), nil
+}
 
 // The function `GetLocalIP` retrieves the local IP address of the machine it is running on.
 func GetLocalIP() (string, error) {

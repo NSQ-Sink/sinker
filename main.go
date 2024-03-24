@@ -7,14 +7,13 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/nsqsink/sink/config"
 	consumer "github.com/nsqsink/sink/consumer/nsq"
-	"github.com/nsqsink/sink/entities"
+	"github.com/nsqsink/sink/entity"
 	event "github.com/nsqsink/sink/event/nsq"
 	"github.com/nsqsink/sink/handler"
 	logger "github.com/nsqsink/sink/log"
@@ -83,27 +82,40 @@ func main() {
 	}
 
 	// washtub
-	washtub, err := washtubhttp.NewWashtuber(context.Background(), cfg.Washtub)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	if cfg.Washtub != "" {
+		washtubURL, err := network.GetValidURL(cfg.Washtub)
+		if err != nil {
+			log.Fatalln(err)
+		}
 
-	// pulse
-	if cfg.Washtub != "" && net.ParseIP(cfg.Washtub) != nil {
+		washtub, err := washtubhttp.NewWashtuber(context.Background(), washtubURL)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		ip, err := network.GetLocalIP()
 		if err != nil {
 			log.Println(err)
 			ip = fmt.Sprintf("Failed to get IP Address: %s", consumerCfg.ID)
 		}
-		metadata := entities.PulseRequest{
-			ChannelID: consumerCfg.ID,
-			Topic:     consumerCfg.Topic,
-			SinkType:  consumerCfg.Sinker.Type,
-			Status:    "active",
-			Address:   ip,
-		}
 
-		washtub.Pulse(context.Background(), metadata)
+		for _, consumer := range cfg.Consumers {
+			metadata := entity.PulseRequest{
+				ChannelID: consumer.ID,
+				Topic:     consumer.Topic,
+				SinkType:  consumer.Sinker.Type,
+				Status:    "active",
+				Address:   ip,
+			}
+
+			errCh := washtub.Pulse(context.Background(), metadata)
+			go func() {
+				select {
+				case err := <-errCh:
+					log.Println(err)
+				}
+			}()
+		}
 	}
 
 	// create streamer server

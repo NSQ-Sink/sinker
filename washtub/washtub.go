@@ -3,7 +3,7 @@ package washtub
 import (
 	"context"
 
-	"github.com/nsqsink/sink/entities"
+	entities "github.com/nsqsink/sink/entity"
 )
 
 type Washtuber interface {
