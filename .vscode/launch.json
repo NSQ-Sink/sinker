@@ -10,7 +10,8 @@
             "request": "launch",
             "mode": "auto",
             "program": "${fileDirname}",
-            "args": ["--washtub", "127.0.0.1:9000", "--config-path", "/home/ryzen/Projects/go/src/github.com/nsqsink/sink/example-config.json"]
+            "cwd": "${workspaceFolder}",
+            "args": ["--washtub", "127.0.0.1:9000", "--config-path", "./example-config.json"]
         }
     ]
 }
