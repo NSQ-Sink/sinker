@@ -2,6 +2,10 @@ package entity
 
 import "time"
 
+const (
+	WashtubStatusActive = "active"
+)
+
 type PulseRequest struct {
 	ChannelID string `json:"channel_id"`
 	Address   string `json:"address"`

@@ -104,7 +104,7 @@ func main() {
 				ChannelID: consumer.ID,
 				Topic:     consumer.Topic,
 				SinkType:  consumer.Sinker.Type,
-				Status:    "active",
+				Status:    entity.WashtubStatusActive,
 				Address:   ip,
 			}
 

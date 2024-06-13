@@ -4,12 +4,18 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
 
 	"github.com/nsqsink/sink/entity"
 	"github.com/nsqsink/sink/washtub"
+)
+
+const (
+	DefaultTimeout       = 2 * time.Second
+	DefaultPulseInterval = 5 * time.Second
 )
 
 type Client struct {
@@ -33,15 +39,23 @@ type Client struct {
 	client *http.Client
 }
 
-func NewWashtuber(ctx context.Context, address string) (washtub.Washtuber, error) {
-	return &Client{
+func NewWashtuber(ctx context.Context, address string, options ...Option) (washtub.Washtuber, error) {
+	c := &Client{
 		client: &http.Client{
-			Timeout: time.Second * 2,
+			Timeout: DefaultTimeout,
 		},
 		stopPulse:     make(chan struct{}, 1),
-		pulseInterval: time.Second * 5,
+		pulseInterval: DefaultPulseInterval,
 		address:       address,
-	}, nil
+	}
+
+	for _, option := range options {
+		if err := option(c); err != nil {
+			return c, fmt.Errorf("failed to register option to Washtub Client because %s", err.Error())
+		}
+	}
+
+	return c, nil
 }
 
 func (c *Client) Pulse(ctx context.Context, data entity.PulseRequest) chan error {
