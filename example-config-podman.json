@@ -1,0 +1,33 @@
+[
+  {
+    "id": "channel-name",
+    "topic": "topic-name",
+    "source": {
+      "nsqd": ["host.containers.internal:4150"],
+      "nsqlookupd": ["host.containers.internal:4161"]
+    },
+    "max_attempt": 5,
+    "max_in_flight": 4,
+    "concurrent": 2,
+    "sinker": {
+      "type": "http",
+      "parser": {
+        "type": "json",
+        "template": "{\"name\":\"$user.name\",\"age\":$user.age}"
+      },
+      "config": {
+        "http": {
+          "url": "http://something.com",
+          "method": "POST",
+          "headers": {
+            "Accept": "application/json"
+          }
+        },
+        "file": {
+          "file_name": ""
+        }
+      }
+    },
+    "active": true
+  }
+]
