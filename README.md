@@ -1,4 +1,4 @@
-# nsqsink
+# tenryumon: sink
 ![Test Status](https://github.com/nyelonong/nsqsink/actions/workflows/test.yml/badge.svg)
 
 # how to run
